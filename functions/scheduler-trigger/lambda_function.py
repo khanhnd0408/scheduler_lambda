@@ -15,7 +15,7 @@ tasks_definition = {
     "2024-05-09": [],
     "2024-05-10": [],
     "2024-05-11": [],
-    "2024-05-12": [],
+    "2024-05-12": ["full1", "full2"],
     "2024-05-13": [],
     "2024-05-14": [],
     "2024-05-15": [],
@@ -29,19 +29,33 @@ def get_current_date(format="%Y-%m-%d %H:%M:%S", debug=False):
     else:
         gmt7 = datetime.now() + timedelta(hours=7)
         return gmt7.strftime(format)
+
+
+def get_task_arn(task_id):
+    response = client.describe_replication_tasks(
+        Filters=[
+            {
+                'Name': 'replication-task-id',
+                'Values': [
+                    task_id
+                ]
+            },
+        ]
+    )
+    return response['ReplicationTasks'][0]['ReplicationTaskArn']
     
 
 def lambda_handler(event, context):
-    now = get_current_date(format="%Y-%m-%d")
-    dms_tasks_arn = tasks_definition[now]
-    
+    now = get_current_date(format="%Y-%m-%d", debug=True)
+    dms_tasks_id = tasks_definition[now]
+
     try:
-        for task_arn in dms_tasks_arn:
+        for task_id in dms_tasks_id:
+            task_arn = get_task_arn(task_id)
             response = client.start_replication_task(
                 ReplicationTaskArn=task_arn,
-                StartReplicationTaskType='start-replication'
+                StartReplicationTaskType='reload-target'#'start-replication'
             )
             print(f"Task {task_arn}, finished with response: {response}")
     except Exception as e:
         raise e
-        
