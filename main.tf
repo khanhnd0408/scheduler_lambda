@@ -65,7 +65,7 @@ module "lambda_dms_policy" {
         "Action" : [
           "dms:StartReplicationTask"
         ],
-        "Resource" : "arn:aws:dms:ap-southeast-1:891377195263:task:*"
+        "Resource" : "arn:aws:dms:ap-southeast-1:${data.aws_caller_identity.current.account_id}:task:*"
       },
       {
         "Sid" : "AllowDescribeTask",
@@ -73,7 +73,7 @@ module "lambda_dms_policy" {
         "Action" : [
           "dms:DescribeReplicationTasks"
         ],
-        "Resource" : "arn:aws:dms:ap-southeast-1:891377195263:*:*"
+        "Resource" : "arn:aws:dms:ap-southeast-1:${data.aws_caller_identity.current.account_id}:*:*"
       }
     ]
   })
